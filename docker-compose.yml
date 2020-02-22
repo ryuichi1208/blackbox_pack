@@ -1,4 +1,15 @@
-version: '3'
+version: '3.7'
+
+x-web-template: &template
+  user: root
+  tty: true
+  environment:
+    TZ: "Asia/Tokyo"
+  image: prom/node-exporter:v1.0.0-rc.0
+  volumes:
+    - /proc:/host/proc
+    - /sys:/host/sys
+    - /:/rootfs
 
 services:
   grafana:
@@ -19,15 +30,13 @@ services:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     command: --config.file=/etc/prometheus/prometheus.yml
 
-  node-exporter:
-    container_name: node-exporter
-    image: quay.io/prometheus/node-exporter
-    ports:
-      - 9100:9100
-    volumes:
-      - /proc:/host/proc
-      - /sys:/host/sys
-      - /:/rootfs
+  node-exporter001:
+    container_name: node-exporter001
+    <<: *template
+
+  node-exporter002:
+    container_name: node-exporter002
+    <<: *template
 
   blackbox_exporter:
     container_name: blackbox-exporter
