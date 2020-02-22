@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  grafana:
+    container_name: grafana001
+    image: grafana/grafana:6.6.2
+    volumes:
+      - ./data-grafana:/var/lib/grafana
+    ports:
+      - 3000:3000
+
+  prometheus:
+    image: prom/prometheus:v2.16.0
+    container_name: prometheus001
+    ports:
+      - 9090:9090
+    volumes:
+      - data-prometheus:/prometheus
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command: --config.file=/etc/prometheus/prometheus.yml
+
+  node-exporter:
+    container_name: node-exporter
+    image: quay.io/prometheus/node-exporter
+    ports:
+      - 9100:9100
+    volumes:
+      - /proc:/host/proc
+      - /sys:/host/sys
+      - /:/rootfs
+
+  blackbox_exporter:
+    container_name: blackbox-exporter
+    image: prom/blackbox-exporter:latest
+    volumes:
+      - ./blackbox_exporter/config.yml:/etc/blackbox_exporter/config.yml
+
+  webapp:
+    build: ./webapp
+    container_name: sample.web.com
+    volumes:
+      - ./webapp/main.py:/app/main.py
+
+volumes:
+  data-prometheus:
+    driver: local
+  data-grafana:
+    driver: local
